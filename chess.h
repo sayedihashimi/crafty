@@ -321,9 +321,17 @@ typedef struct thread {
 #  define LEGAL                        1
 #  define IN_WINDOW                    2
 #  define FAIL_HIGH                    3
+
+#if !defined(INLINEASM) && !defined(__WIN32__)
 #define PopCnt(v) __builtin_popcountll(v)
 #define LSB(v)    __builtin_ctzll(v)
 #define MSB(v)    (63 - __builtin_clzll(v))
+#else
+int MSB(uint64_t arg1);
+int LSB(uint64_t arg1);
+int PopCnt(uint64_t arg1);
+#endif
+
 void AlignedMalloc(void **, uint64_t, size_t);
 void AlignedRemalloc(void **, uint64_t, size_t);
 void Analyze(void);

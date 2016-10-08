@@ -107,9 +107,13 @@ unsigned TB_LARGEST = 0;
 #define file(s)                 ((s) & 0x07)
 #define board(s)                ((uint64_t)1 << (s))
 static inline unsigned _lsb(uint64_t b) {
+#if defined(INLINEASM) && !defined(__WIN32__)
   size_t idx;
 __asm__("bsfq %1, %0": "=r"(idx):"rm"(b));
   return idx;
+#else
+	return LSB(b);		 
+#endif
 }
 
 #define square(r, f)            (8 * (r) + (f))
@@ -630,7 +634,7 @@ static int probe_wdl_table(const struct pos *pos, int *success) {
         return 0;
       }
      // Memory barrier to ensure ptr->ready = 1 is not reordered.
-      __asm__ __volatile__("":::"memory");
+	  MemoryBarrier();
       ptr->ready = 1;
     }
     UNLOCK(TB_MUTEX);

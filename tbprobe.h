@@ -53,6 +53,10 @@ extern "C" {
 #    endif
 #  endif
 
+#  ifndef __WIN32__
+#    define MemoryBarrier __asm__ __volatile__("":::"memory");
+#  endif
+ 
 /*
  * Internal definitions.  Do not call these functions directly.
  */
