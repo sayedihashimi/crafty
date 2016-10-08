@@ -8,7 +8,9 @@
 */
 
 #include <stdio.h>
-#include <unistd.h>
+#ifndef __WIN32__
+#	include <unistd.h>
+#endif
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,6 +20,9 @@
 #  include <sys/mman.h>
 #endif
 #include "tbcore.h"
+#ifdef __WIN32__
+#	include <intrin.h>
+#endif
 
 #define TBMAX_PIECE 254
 #define TBMAX_PAWN 256
@@ -1559,7 +1564,11 @@ static ubyte decompress_pairs(struct PairsData *d, uint64 idx) {
   }
 #else
   uint32 next = 0;
+#ifndef __WIN32__
   uint32 code = __builtin_bswap32(*ptr++);
+#else
+  uint32 code = _byteswap_ulong(*ptr++);
+#endif
   bitcnt = 0; // number of bits in next
   for (;;) {
     int l = m;
@@ -1575,7 +1584,11 @@ static ubyte decompress_pairs(struct PairsData *d, uint64 idx) {
         code |= (next >> (32 - l));
         l -= bitcnt;
       }
+#ifndef __WIN32__
       next = __builtin_bswap32(*ptr++);
+#else
+	  next = _byteswap_ulong(*ptr++);
+#endif
       bitcnt = 32;
     }
     code |= (next >> (32 - l));
